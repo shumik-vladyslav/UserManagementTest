@@ -1,3 +1,4 @@
+import { SigninComponent } from './components/signin/signin.component';
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 
@@ -7,13 +8,18 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 import { environment } from 'src/environments/environment';
 
-// import { AngularFirestore } from '@angular/fire/firestore';
+import { AngularFirestoreModule } from '@angular/fire/firestore';
 import { AngularFireModule } from '@angular/fire';
 
 // import { AngularFireDatabaseModule } from '@angular/fire/database';
+
+import {MatTableModule} from '@angular/material/table';
+import { UserComponent } from './components/user/user.component';
 @NgModule({
   declarations: [
-    AppComponent
+    AppComponent,
+    UserComponent,
+    SigninComponent
   ],
   imports: [
     BrowserModule,
@@ -21,7 +27,8 @@ import { AngularFireModule } from '@angular/fire';
     BrowserAnimationsModule,
 
     AngularFireModule.initializeApp(environment.firebaseConfig),
-    // AngularFirestore
+    AngularFirestoreModule,
+    MatTableModule
   ],
   providers: [],
   bootstrap: [AppComponent]
