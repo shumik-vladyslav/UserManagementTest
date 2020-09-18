@@ -34,7 +34,7 @@ export class SigninComponent implements OnInit {
       this.userServ.getUser(cred.user.uid).pipe(take(1)).subscribe(
         () => this.router.navigateByUrl('user'),
         err => this.showErr(err)
-        
+      )
     }
     catch (err) {
       this.showErr(err)
