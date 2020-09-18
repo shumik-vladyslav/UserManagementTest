@@ -3,6 +3,7 @@ import { Injectable } from '@angular/core';
 import { AngularFirestore, DocumentReference } from '@angular/fire/firestore';
 import { Observable } from 'rxjs';
 import { map, take, tap } from 'rxjs/operators';
+import { Sort } from '@angular/material/sort';
 
 @Injectable({
   providedIn: 'root'
@@ -14,44 +15,51 @@ export class UserService {
 
   constructor(private firestore: AngularFirestore) {
   }
-
-  // first: number, limit: number, filter: Object, sort: Object
-  getUsers(
-    sort: { active: string, direction: "desc" | "asc" } = null,
-  ): Promise<IUser> {
-    let query = this.ref.limit(10);
-    if (sort && sort.active) {
-      query = query.orderBy(sort.active, sort.direction || 'desc')
-    }
-    return query.get()
-      .then(querySnap => querySnap.docs)
-      .then(docsSnap => docsSnap.map(dSnap => {
-        const tmp = dSnap.data();
-        // console.log(tmp);
-        tmp.birthdate = tmp.birthdate ? tmp.birthdate.toDate() : null;
-        return tmp;
-      })) as Promise<IUser>
-    // return this.ref.orderBy("population").get()
-    // .pipe(
-    //   take(1), 
-    //   map(snap => snap.docs.map(dSnap => {
-    //     const tmp = dSnap.data();
-    //     tmp.birthdate = tmp.birthdate?tmp.birthdate.toDate():null;
-    //     return tmp;
-    //   } )), 
-    //   tap(data => console.log(data)))
-    // this.firestore.collection(COLLECTION)
-    //   .where("age", ">=", 20)
-    //   .orderBy("age", "desc")
-    //   .get()
-    //   .then(snap => {
-    //     snap.forEach(doc => {
-    //       console.log(doc.data());
-    //     });
-    //   });
-    // return this.firestore.collection(COLLECTION).snapshotChanges();
+  prevPageIdex = 0;
+  firstPageDoc;
+  lastPageDoc;
+  
+  getUserTotal(): Promise<number> {
+    return this.firestore.firestore.doc('counters/user').get().then(dSnap => dSnap.data().total)
   }
 
+  getUsers(
+    page: { pageIndex: number, limit: number },
+    filter: { field: string, value: any }[] = null,
+  ): Promise<IUser[]> {
+    let query: any = this.ref;
+
+    if (filter && filter.length > 0) {
+      query = filter.reduce((q, f) => q.where(f.field, "==", f.value), query);
+    }
+    
+    query = query.orderBy('email', 'asc');
+
+    if (page.pageIndex && page.pageIndex - this.prevPageIdex > 0) {
+      query = query.startAfter(this.lastPageDoc)
+    } else if (page.pageIndex && page.pageIndex  - this.prevPageIdex < 0) {
+      query.startAt(this.firstPageDoc)
+    } else if (page.pageIndex) {
+      query.startAt(this.firstPageDoc)
+    }
+
+    this.prevPageIdex = page.pageIndex;
+    if (page.limit) {
+      query = query.limit(page.limit);  
+    }
+
+    return query.get()
+      .then(querySnap => {
+        this.firstPageDoc = querySnap.docs[0];
+        this.lastPageDoc = querySnap.docs[querySnap.docs.length - 1];
+        return querySnap.docs
+      })
+      .then(docsSnap => docsSnap.map(dSnap => {
+        const tmp = dSnap.data();
+        tmp.birthdate = tmp.birthdate ? tmp.birthdate.toDate() : null;
+        return tmp;
+      })) as Promise<IUser[]>
+  }
 
   createUser(user: IUser): Promise<DocumentReference> {
     return this.ref.add(user);
@@ -64,10 +72,4 @@ export class UserService {
   deleteUser(userId: string): Promise<void> {
     return this.ref.doc(userId).delete();
   }
-
-  // update(user: IUser) {
-  //   const userId = user.id;
-  //   delete user.id;
-  //   this.firestore.doc(`${COLLECTION}/${userId}`).update(user);
-  // }
 }

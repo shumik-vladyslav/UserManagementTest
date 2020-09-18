@@ -7,24 +7,21 @@ exports.createUser = functions.firestore
     .document('users/{userId}')
     .onCreate(async (snap, context) => {
         const user = snap.data();
-        console.log(user, context.params['userId']);
-        try {
-            await admin.auth().createUser({
-                uid: context.params['userId'],
-                email: user.email,
-                password: user.password,
-                disabled: false,
-            });
-            return snap.ref.update({ id: context.params['userId'] })
-        }
-        catch (err) {
-            console.log(err);
-        }
-        return;
+
+        await admin.auth().createUser({
+            uid: context.params['userId'],
+            email: user.email,
+            password: user.password,
+            disabled: false,
+        });
+        const ref = admin.firestore().doc('counters/user');
+        await ref.update({ total: admin.firestore.FieldValue.increment(1) })
+        return snap.ref.update({ id: context.params['userId'], password: null })
     });
 
 exports.deleteUser = functions.firestore
     .document('users/{userID}')
     .onDelete(async (snap, context) => {
         await admin.auth().deleteUser(context.params['userId']);
+        await admin.firestore().collection('counters').doc('user').update({ total: admin.firestore.FieldValue.increment(-1) })
     });
