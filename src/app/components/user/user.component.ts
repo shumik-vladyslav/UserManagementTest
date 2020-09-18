@@ -16,7 +16,7 @@ export class UserComponent implements AfterViewInit,OnInit {
   @ViewChild(MatPaginator) paginator: MatPaginator;
   @ViewChild(MatSort) sort: MatSort;
   displayedColumns: string[] = ['name', 'phone number', 'email-address', 'role', 'birthdate'];
-  dataSource: MatTableDataSource<IUser>;
+  dataSource;
   
   constructor(
     private dialog: MatDialog,
@@ -25,6 +25,7 @@ export class UserComponent implements AfterViewInit,OnInit {
     ) {}
 
   ngOnInit():void {
+    this.dataSource = this.userServ.getUsers();
     // this.paginator.length = 100;
   }
 
@@ -44,7 +45,7 @@ export class UserComponent implements AfterViewInit,OnInit {
       if (!user) return;
       console.log(`Dialog result`, user);
       try {
-        await this.userServ.create(user);
+        await this.userServ.createUser(user);
         this.snackBar.open('User created', 'Close' ,{
           duration: 4000,
         });
