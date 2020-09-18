@@ -1,11 +1,5 @@
 {
-  "targets": {
-    "fuser-management-test-67ee8": {
-      "hosting": {
-        "UserManagementTest": [
-          "user-management-test-67ee8"
-        ]
-      }
-    }
+  "projects": {
+    "default": "user-management-test-67ee8"
   }
 }

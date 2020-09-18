@@ -26,7 +26,8 @@
             <mat-form-field appearance="fill">
                 <mat-label>Enter phone</mat-label>
                 <input matInput placeholder="Phone" formControlName="phone" required>
-                <mat-error *ngIf="form.controls['phone'].invalid">Phone is required</mat-error>
+                <mat-error *ngIf="form.controls['phone'].errors?.required">Phone is required</mat-error>
+                <mat-error *ngIf="form.controls['phone'].errors?.pattern">Phone format is invalid</mat-error>
             </mat-form-field>
         </p>
         <p>
