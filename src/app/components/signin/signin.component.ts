@@ -31,8 +31,10 @@ export class SigninComponent implements OnInit {
     const { email, password } = this.form.value;
     try {
       const cred = await this.auth.signInWithEmailAndPassword(email, password);
-      this.userServ.getUser(cred.user.uid).pipe(take(1)).subscribe(
+      this.userServ.getUser(cred.user.uid)
+      .then(
         () => this.router.navigateByUrl('user'),
+      ).catch(
         err => this.showErr(err)
       )
     }

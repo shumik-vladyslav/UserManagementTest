@@ -10,17 +10,36 @@ import { map, take, tap } from 'rxjs/operators';
 export class UserService {
 
   // collection reference
-  private get ref() {
-    return this.firestore.collection('users')
+  private ref = this.firestore.firestore.collection('users');
+
+  constructor(private firestore: AngularFirestore) {
   }
-  constructor(private firestore: AngularFirestore) { }
 
   // first: number, limit: number, filter: Object, sort: Object
-  getUsers() {
-    return this.ref.get().pipe(
-      take(1), 
-      map(snap => snap.docs.map(dSnap => dSnap.data())), 
-      tap(data => console.log(data)))
+  getUsers(
+    sort: { active: string, direction: "desc" | "asc" } = null,
+  ): Promise<IUser> {
+    let query = this.ref.limit(10);
+    if (sort && sort.active) {
+      query = query.orderBy(sort.active, sort.direction || 'desc')
+    }
+    return query.get()
+      .then(querySnap => querySnap.docs)
+      .then(docsSnap => docsSnap.map(dSnap => {
+        const tmp = dSnap.data();
+        // console.log(tmp);
+        tmp.birthdate = tmp.birthdate ? tmp.birthdate.toDate() : null;
+        return tmp;
+      })) as Promise<IUser>
+    // return this.ref.orderBy("population").get()
+    // .pipe(
+    //   take(1), 
+    //   map(snap => snap.docs.map(dSnap => {
+    //     const tmp = dSnap.data();
+    //     tmp.birthdate = tmp.birthdate?tmp.birthdate.toDate():null;
+    //     return tmp;
+    //   } )), 
+    //   tap(data => console.log(data)))
     // this.firestore.collection(COLLECTION)
     //   .where("age", ">=", 20)
     //   .orderBy("age", "desc")
@@ -38,10 +57,8 @@ export class UserService {
     return this.ref.add(user);
   }
 
-  getUser(id: string): Observable<IUser> {
-    return this.ref.doc(id).get().pipe(map(
-      snap => snap.data() as IUser
-    ));
+  getUser(id: string): Promise<IUser> {
+    return this.ref.doc(id).get().then(dSnap => dSnap.data() as IUser)
   }
 
   deleteUser(userId: string): Promise<void> {

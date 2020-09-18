@@ -15,7 +15,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 export class UserComponent implements AfterViewInit,OnInit {
   @ViewChild(MatPaginator) paginator: MatPaginator;
   @ViewChild(MatSort) sort: MatSort;
-  displayedColumns: string[] = ['name', 'phone number', 'email-address', 'role', 'birthdate'];
+  displayedColumns: string[] = ['firstName', 'phone', 'email', 'role', 'birthdate'];
   dataSource;
   
   constructor(
@@ -25,8 +25,14 @@ export class UserComponent implements AfterViewInit,OnInit {
     ) {}
 
   ngOnInit():void {
-    this.dataSource = this.userServ.getUsers();
+    this.updateData();
+    // this.dataSource = ;
     // this.paginator.length = 100;
+  }
+  
+  updateData(sort = null) {
+    debugger
+    this.userServ.getUsers(sort).then(data => this.dataSource = data)
   }
 
   ngAfterViewInit(): void {
@@ -34,7 +40,7 @@ export class UserComponent implements AfterViewInit,OnInit {
       console.log('pageEvent', p);
     });
     this.sort.sortChange.subscribe((s: Sort) => {
-      console.log('sort', s);
+      this.updateData(s);
     });
   }
 
