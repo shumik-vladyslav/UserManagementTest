@@ -1,9 +1,6 @@
 import { IUser } from './../entities/user.model';
 import { Injectable } from '@angular/core';
 import { AngularFirestore, DocumentReference } from '@angular/fire/firestore';
-import { Observable } from 'rxjs';
-import { map, take, tap } from 'rxjs/operators';
-import { Sort } from '@angular/material/sort';
 
 @Injectable({
   providedIn: 'root'
@@ -15,6 +12,7 @@ export class UserService {
 
   constructor(private firestore: AngularFirestore) {
   }
+  
   prevPageIdex = 0;
   firstPageDoc;
   lastPageDoc;
