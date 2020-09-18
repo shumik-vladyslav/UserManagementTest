@@ -1,0 +1,65 @@
+<h1 mat-dialog-title>New User</h1>
+<div mat-dialog-content>
+    <form [formGroup]="form">
+        <p>
+            <mat-form-field appearance="fill">
+                <mat-label>Enter first name</mat-label>
+                <input matInput placeholder="First Name" formControlName="firstName" required>
+                <mat-error *ngIf="form.controls['firstName'].invalid">First Name is required</mat-error>
+            </mat-form-field>
+        </p>
+        <p>
+            <mat-form-field appearance="fill">
+                <mat-label>Enter last name</mat-label>
+                <input matInput placeholder="Last Name" formControlName="lastName" required>
+                <mat-error *ngIf="form.controls['lastName'].invalid">Last Name is required</mat-error>
+            </mat-form-field>
+        </p>
+        <p>
+            <mat-form-field appearance="fill">
+                <mat-label>Enter email</mat-label>
+                <input matInput placeholder="Email" formControlName="email" required>
+                <mat-error *ngIf="form.controls['email'].invalid">Email is required</mat-error>
+            </mat-form-field>
+        </p>
+        <p>
+            <mat-form-field appearance="fill">
+                <mat-label>Enter phone</mat-label>
+                <input matInput placeholder="Phone" formControlName="phone" required>
+                <mat-error *ngIf="form.controls['phone'].invalid">Phone is required</mat-error>
+            </mat-form-field>
+        </p>
+        <p>
+            <mat-form-field appearance="fill">
+                <mat-label>Choose birthdate</mat-label>
+                <input matInput [matDatepicker]="picker" formControlName="birthdate">
+                <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+                <mat-datepicker #picker></mat-datepicker>
+            </mat-form-field>
+        </p>
+        <p>
+            <mat-form-field appearance="fill">
+                <mat-label>Select role</mat-label>
+                <mat-select formControlName="role">
+                    <mat-option *ngFor="let r of roles" [value]="r">
+                        {{r}}
+                    </mat-option>
+                </mat-select>
+            </mat-form-field>
+        </p>
+        <p>
+            <mat-form-field appearance="fill">
+                <mat-label>Enter password</mat-label>
+                <input [type]="hidePass ? 'password' : 'text'" matInput placeholder="Password"
+                    formControlName="password" required>
+                <mat-icon matSuffix (click)="hidePass = !hidePass">{{hidePass ? 'visibility_off' : 'visibility'}}
+                </mat-icon>
+                <mat-error *ngIf="form.controls['password'].invalid">Password is required</mat-error>
+            </mat-form-field>
+        </p>
+    </form>
+</div>
+<div mat-dialog-actions>
+    <button mat-button mat-dialog-close>Cancel</button>
+    <button mat-button color="primary" [mat-dialog-close]="form.value" cdkFocusInitial [disabled]="form.invalid">Create</button>
+</div>
